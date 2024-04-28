@@ -1,47 +1,50 @@
 import React, { useState, useEffect } from 'react'
 
 function ToDoList() {
-
-  const [tasks, setTasks] = useState(["comprar Diclorodifeniltricloroetano", "comprar pan", "sacar la basura", "limpiar el espectrómetro de resonancia magnética nuclear de alto campo"])
-  const [newTask, setNewTask] = useState("")
-
-  useEffect(()=>{
+  const [tasks, setTasks] = useState([])
+  const [newTaskText, setNewTaskText] = useState('')
+  const [searchText, setSearchText] = useState('')
+  const filteredTasks = tasks.filter(task => task.toLowerCase().includes(searchText))
+  
+  useEffect(() => {
+    //const boilerArray = ["comprar Diclorodifeniltricloroetano", "comprar pan", "sacar la basura", "limpiar el espectrómetro de resonancia magnética nuclear de alto campo"]
+    //localStorage.setItem('tasks', JSON.stringify(boilerArray))
+    const storedTasks = JSON.parse(localStorage.getItem('tasks'))
+    if (storedTasks) {
+      setTasks(storedTasks)
+    }
+  }, [])
+  useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))
-    console.log(tasks)
+    console.log(JSON.parse(localStorage.getItem('tasks')))
   }, [tasks])
-
-  function handleNewTaskInput(event) {
-    setNewTask(event.target.value)
+  
+  function handleAddTaskInput(event) {
+    setNewTaskText(event.target.value)
   }
-
-  function handleAddTaskBtn() {
-
-  }
-
-
+  
   function handleSearchEmptyBtn() {
-
+    
   }
-
-
+  
   function handleSearchInput(event) {
-    if (!event.target.value) return setTasks(tasks)
-    const resultsArray = tasks.filter(task => task.includes(event.target.value))
-    setTasks(resultsArray)
+    setSearchText(event.target.value.toLowerCase())
   }
-
-
+  
   function addTask() {
-
+    if (newTaskText.trim() !== '') {
+      setTasks([...tasks, newTaskText])
+    }
+    setNewTaskText('')
   }
-
-
+  
+  
   function deleteTask(listItemIndex) {
-    setTasks(tasks.filter((task, index) => index !== listItemIndex))
+    setTasks(prevTasks => prevTasks.filter((task, index) => index !== listItemIndex))
   }
-
-
-
+  
+  
+  
   return (
     <div className="to-do-list">
       <h1>To-Do-List</h1>
@@ -49,13 +52,14 @@ function ToDoList() {
         <input
           type="text"
           placeholder='New task...'
-          value={newTask}
-          onChange={handleNewTaskInput}
-        />
+          onChange={handleAddTaskInput}
+          value={newTaskText}
+          />
         <button
           className='btn-add'
-          onClick={addTask}
-        >
+          onClick={() => addTask()}
+          style={{ width: "30px", height: "30px" }}
+          >
         </button>
         <input
           type="text"
@@ -69,7 +73,7 @@ function ToDoList() {
         </button>
       </div>
       <ol>
-        {tasks.map((task, index) =>
+        {filteredTasks.map((task, index) =>
           <li key={index}>
             <span className='li-text'>{task}</span>
             <button
