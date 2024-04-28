@@ -1,50 +1,43 @@
 import React, { useState, useEffect } from 'react'
 
 function ToDoList() {
-  const [tasks, setTasks] = useState([])
+  const storedTasks = JSON.parse(localStorage.getItem('tasks'))
+  const [tasks, setTasks] = useState(storedTasks)
   const [newTaskText, setNewTaskText] = useState('')
   const [searchText, setSearchText] = useState('')
   const filteredTasks = tasks.filter(task => task.toLowerCase().includes(searchText))
-  
-  useEffect(() => {
-    //const boilerArray = ["comprar Diclorodifeniltricloroetano", "comprar pan", "sacar la basura", "limpiar el espectrómetro de resonancia magnética nuclear de alto campo"]
-    //localStorage.setItem('tasks', JSON.stringify(boilerArray))
-    const storedTasks = JSON.parse(localStorage.getItem('tasks'))
-    if (storedTasks) {
-      setTasks(storedTasks)
-    }
-  }, [])
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))
     console.log(JSON.parse(localStorage.getItem('tasks')))
   }, [tasks])
-  
+
   function handleAddTaskInput(event) {
     setNewTaskText(event.target.value)
   }
-  
+
   function handleSearchEmptyBtn() {
-    
+
   }
-  
+
   function handleSearchInput(event) {
     setSearchText(event.target.value.toLowerCase())
   }
-  
+
   function addTask() {
     if (newTaskText.trim() !== '') {
       setTasks([...tasks, newTaskText])
     }
     setNewTaskText('')
   }
-  
-  
+
+
   function deleteTask(listItemIndex) {
     setTasks(prevTasks => prevTasks.filter((task, index) => index !== listItemIndex))
   }
-  
-  
-  
+
+
+
   return (
     <div className="to-do-list">
       <h1>To-Do-List</h1>
@@ -54,12 +47,12 @@ function ToDoList() {
           placeholder='New task...'
           onChange={handleAddTaskInput}
           value={newTaskText}
-          />
+        />
         <button
           className='btn-add'
           onClick={() => addTask()}
           style={{ width: "30px", height: "30px" }}
-          >
+        >
         </button>
         <input
           type="text"
