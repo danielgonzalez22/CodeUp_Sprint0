@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import './styles/ToDoList.css'
 
 function ToDoList() {
   const storedTasks = JSON.parse(localStorage.getItem('tasks'))
   const [tasks, setTasks] = useState(storedTasks)
-  const [newTaskText, setNewTaskText] = useState('')
   const [searchText, setSearchText] = useState('')
-  const filteredTasks = tasks.filter(task => task.toLowerCase().includes(searchText))
+  const [newTaskText, setNewTaskText] = useState('')
+  const doneCheckboxRef = useRef(null)
+  const pendingCheckboxRef = useRef(null)
+  const filteredTasks = tasks.filter(task => {
+    const textMatch = task.text.toLowerCase().includes(searchText)
+    const isDoneMatch = doneCheckboxRef.current.checked ? task.done : true
+    const isPendingMatch = pendingCheckboxRef.current.checked ? !task.done : true
+    return textMatch && isDoneMatch && isPendingMatch
+  })
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -16,64 +24,102 @@ function ToDoList() {
     setNewTaskText(event.target.value)
   }
 
-  function handleSearchEmptyBtn() {
-
-  }
-
   function handleSearchInput(event) {
     setSearchText(event.target.value.toLowerCase())
   }
 
   function addTask() {
     if (newTaskText.trim() !== '') {
-      setTasks([...tasks, newTaskText])
+      setTasks([...tasks, { text: newTaskText, done: false }])
     }
     setNewTaskText('')
   }
 
+  function markAsDone(index) {
+    setTasks(prevTasks => {
+      const updatedTasks = [...prevTasks]
+      updatedTasks[index] = { ...updatedTasks[index], done: true }
+      return updatedTasks
+    })
+  }
+
+  function markAsPending(index) {
+    setTasks(prevTasks => {
+      const updatedTasks = [...prevTasks]
+      updatedTasks[index] = { ...updatedTasks[index], done: false }
+      return updatedTasks
+    })
+  }
 
   function deleteTask(listItemIndex) {
     setTasks(prevTasks => prevTasks.filter((task, index) => index !== listItemIndex))
   }
 
 
+  function handleDoneCheckbox(index) {
+
+  }
+
+  function handlePendingCheckbox() {
+
+  }
+
 
   return (
-    <div className="to-do-list">
+    <div className="main-container">
       <h1>To-Do-List</h1>
-      <div>
-        <input
-          type="text"
-          placeholder='New task...'
-          onChange={handleAddTaskInput}
-          value={newTaskText}
-        />
-        <button
-          className='btn-add'
-          onClick={() => addTask()}
-          style={{ width: "30px", height: "30px" }}
-        >
-        </button>
-        <input
-          type="text"
-          placeholder='Search task...'
-          onChange={handleSearchInput}
-        />
-        <button
-          className='btn-empty-search'
-          onClick={handleSearchEmptyBtn}
-        >
-        </button>
+      <div className='inputs-container'>
+        <div className='newtask-div'>
+          <input
+            type="text"
+            placeholder='New task...'
+            onChange={handleAddTaskInput}
+            value={newTaskText}
+          />
+          <button
+            className='btn-add'
+            onClick={() => addTask()}
+          >
+            Add
+          </button>
+        </div>
+        <div className='search-div'>
+          <input
+            type="text"
+            placeholder='Search task...'
+            onChange={handleSearchInput}
+          />
+          <input type="checkbox" id="doneCheckbox" ref={doneCheckboxRef} onChange={handleDoneCheckbox} />
+          <label htmlFor="doneCheckbox">Done</label>
+          <input type="checkbox" id="pendingCheckbox" ref={pendingCheckboxRef} onChange={handlePendingCheckbox} />
+          <label htmlFor="pendingCheckbox">Pending</label>
+          <label htmlFor=""></label>
+          <label htmlFor=""></label>
+        </div>
       </div>
       <ol>
         {filteredTasks.map((task, index) =>
-          <li key={index}>
-            <span className='li-text'>{task}</span>
+          <li key={index} className='list-item'>
+            <span className={task.done ? 'li-text done' : 'li-text'}>{task.text}</span>
+            <button
+              className='btn-check'
+              onClick={() => markAsDone(index)}
+              disabled={task.done}
+            >
+              Done
+            </button>
+            <button
+              className='btn-uncheck'
+              onClick={() => markAsPending(index)}
+              disabled={!task.done}
+            >
+              Pending
+            </button>
             <button
               className='btn-delete'
               onClick={() => deleteTask(index)}
             >
-              Delete task
+              X
             </button>
           </li>
         )}
