@@ -23,7 +23,11 @@ function ToDoList() {
   }, [tasks])
 
   function handleAddTaskInput(event) {
-    setNewTaskText(event.target.value)
+    if (event.key === 'Enter') {
+      addTask();
+    } else {
+      setNewTaskText(event.target.value);
+    }
   }
 
   function handleSearchInput(event) {
@@ -58,15 +62,6 @@ function ToDoList() {
   }
 
 
-  function handleDoneCheckbox() {
-    setSearchText("caca")
-  }
-
-  function handlePendingCheckbox() {
-    setSearchText("caca")
-  }
-
-
   return (
     <div className="main-container">
       <h1>To-Do-List</h1>
@@ -76,6 +71,7 @@ function ToDoList() {
             type="text"
             placeholder='New task...'
             onChange={handleAddTaskInput}
+            onKeyPress={handleAddTaskInput}
             value={newTaskText}
           />
           <button
